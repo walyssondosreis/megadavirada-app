@@ -72,7 +72,7 @@ export default function LoginPage() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900 bg-white"
                 placeholder="Digite seu usuário"
                 required
               />
@@ -86,7 +86,7 @@ export default function LoginPage() {
                 type="password"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900 bg-white"
                 placeholder="Digite sua senha"
                 required
               />
@@ -107,6 +107,10 @@ export default function LoginPage() {
             </p>
           </div>
         </div>
+
+        <footer className="mt-8 text-center text-white text-sm">
+          by @walyssondosreis
+        </footer>
       </div>
     </div>
   );

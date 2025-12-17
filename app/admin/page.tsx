@@ -6,15 +6,15 @@ import { supabase, Bolao, Aposta } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   ArrowLeft,
-  Check,
-  X,
-  Edit,
   Trash2,
   Lock,
   Unlock,
   Settings,
   DollarSign,
   CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  Save,
 } from 'lucide-react';
 
 export default function AdminPage() {
@@ -22,6 +22,16 @@ export default function AdminPage() {
   const [apostas, setApostas] = useState<Aposta[]>([]);
   const [loading, setLoading] = useState(true);
   const [showConfig, setShowConfig] = useState(false);
+  const [showResultado, setShowResultado] = useState(false);
+  const [resultado, setResultado] = useState('');
+  
+  // Estados para edição do bolão
+  const [editTitulo, setEditTitulo] = useState('');
+  const [editSubtitulo, setEditSubtitulo] = useState('');
+  const [editConcurso, setEditConcurso] = useState('');
+  const [editValorCota, setEditValorCota] = useState('');
+  const [editLinkWhatsapp, setEditLinkWhatsapp] = useState('');
+  
   const router = useRouter();
   const { isAdmin, user } = useAuth();
 
@@ -48,6 +58,12 @@ export default function AdminPage() {
 
       if (bolaoData) {
         setBolao(bolaoData);
+        setEditTitulo(bolaoData.titulo);
+        setEditSubtitulo(bolaoData.subtitulo || '');
+        setEditConcurso(bolaoData.concurso.toString());
+        setEditValorCota(bolaoData.valor_cota.toString());
+        setEditLinkWhatsapp(bolaoData.link_whatsapp || '');
+        setResultado(bolaoData.resultado || '');
 
         const { data: apostasData } = await supabase
           .from('apostas')
@@ -67,27 +83,95 @@ export default function AdminPage() {
   const toggleBolao = async () => {
     if (!bolao) return;
 
+    const novoStatus = !bolao.esta_aberto;
+    
     const { error } = await supabase
       .from('boloes')
-      .update({ esta_aberto: !bolao.esta_aberto })
+      .update({ esta_aberto: novoStatus })
       .eq('id', bolao.id);
 
     if (!error) {
-      setBolao({ ...bolao, esta_aberto: !bolao.esta_aberto });
+      setBolao({ ...bolao, esta_aberto: novoStatus });
+      if (!novoStatus) {
+        setShowResultado(true);
+      }
+    }
+  };
+
+  const salvarConfiguracoes = async () => {
+    if (!bolao) return;
+
+    const { error } = await supabase
+      .from('boloes')
+      .update({
+        titulo: editTitulo,
+        subtitulo: editSubtitulo,
+        concurso: parseInt(editConcurso),
+        valor_cota: parseFloat(editValorCota),
+        link_whatsapp: editLinkWhatsapp,
+      })
+      .eq('id', bolao.id);
+
+    if (!error) {
+      alert('Configurações salvas com sucesso!');
+      loadData();
+    } else {
+      alert('Erro ao salvar configurações');
+    }
+  };
+
+  const salvarResultado = async () => {
+    if (!bolao) return;
+
+    // Validar formato
+    const regex = /^\d{1,2}-\d{1,2}-\d{1,2}-\d{1,2}-\d{1,2}-\d{1,2}$/;
+    if (!regex.test(resultado)) {
+      alert('Formato inválido! Use o formato: 1-2-3-4-5-6');
+      return;
+    }
+
+    const { error } = await supabase
+      .from('boloes')
+      .update({ resultado })
+      .eq('id', bolao.id);
+
+    if (!error) {
+      alert('Resultado salvo com sucesso!');
+      setBolao({ ...bolao, resultado });
+      setShowResultado(false);
+    } else {
+      alert('Erro ao salvar resultado');
     }
   };
 
   const updateApostaPaga = async (id: number, pago: boolean) => {
-    const newStatus = pago ? 'pago' : 'pendente';
+    const aposta = apostas.find(a => a.id === id);
+    if (!aposta) return;
+
+    let newStatus: 'pendente' | 'pago' | 'registrado';
+    let newRegistrada = aposta.aposta_registrada;
+
+    if (!pago) {
+      // Se desmarcar pago, volta para pendente e desmarca registrado
+      newStatus = 'pendente';
+      newRegistrada = false;
+    } else {
+      newStatus = 'pago';
+    }
+
     const { error } = await supabase
       .from('apostas')
-      .update({ aposta_paga: pago, status: newStatus })
+      .update({ 
+        aposta_paga: pago, 
+        aposta_registrada: newRegistrada,
+        status: newStatus 
+      })
       .eq('id', id);
 
     if (!error) {
       setApostas(
         apostas.map((a) =>
-          a.id === id ? { ...a, aposta_paga: pago, status: newStatus } : a
+          a.id === id ? { ...a, aposta_paga: pago, aposta_registrada: newRegistrada, status: newStatus } : a
         )
       );
     }
@@ -121,20 +205,6 @@ export default function AdminPage() {
     }
   };
 
-  const updateLinkWhatsApp = async (link: string) => {
-    if (!bolao) return;
-
-    const { error } = await supabase
-      .from('boloes')
-      .update({ link_whatsapp: link })
-      .eq('id', bolao.id);
-
-    if (!error) {
-      setBolao({ ...bolao, link_whatsapp: link });
-      alert('Link do WhatsApp atualizado!');
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 to-blue-600">
@@ -144,9 +214,9 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 py-4 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => router.push('/')}
             className="flex items-center gap-2 text-white hover:opacity-80 transition-opacity"
@@ -156,59 +226,111 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setShowConfig(!showConfig)}
-            className="flex items-center gap-2 px-4 py-2 bg-white text-purple-600 rounded-lg hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white text-purple-600 rounded-lg hover:bg-gray-100 transition-colors text-sm"
           >
             <Settings size={18} />
-            Configurações
+            {showConfig ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
         </div>
 
+        {/* Painel de Configurações */}
         {showConfig && (
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
               Configurações do Bolão
             </h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Link do Grupo WhatsApp
+                  Título do Bolão
                 </label>
-                <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={editTitulo}
+                  onChange={(e) => setEditTitulo(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 text-gray-900 bg-white"
+                  placeholder="Ex: Mega da Virada 2025"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Subtítulo
+                </label>
+                <input
+                  type="text"
+                  value={editSubtitulo}
+                  onChange={(e) => setEditSubtitulo(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 text-gray-900 bg-white"
+                  placeholder="Ex: Concorra a prêmios milionários!"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Número do Concurso
+                  </label>
                   <input
-                    type="url"
-                    defaultValue={bolao?.link_whatsapp || ''}
-                    id="whatsapp-link"
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"
-                    placeholder="https://chat.whatsapp.com/..."
+                    type="number"
+                    value={editConcurso}
+                    onChange={(e) => setEditConcurso(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 text-gray-900 bg-white"
+                    placeholder="2810"
                   />
-                  <button
-                    onClick={() => {
-                      const input = document.getElementById(
-                        'whatsapp-link'
-                      ) as HTMLInputElement;
-                      updateLinkWhatsApp(input.value);
-                    }}
-                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                  >
-                    Salvar
-                  </button>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Valor da Cota (R$)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editValorCota}
+                    onChange={(e) => setEditValorCota(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 text-gray-900 bg-white"
+                    placeholder="25.00"
+                  />
                 </div>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Link do Grupo WhatsApp
+                </label>
+                <input
+                  type="url"
+                  value={editLinkWhatsapp}
+                  onChange={(e) => setEditLinkWhatsapp(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 text-gray-900 bg-white"
+                  placeholder="https://chat.whatsapp.com/..."
+                />
+              </div>
+
+              <button
+                onClick={salvarConfiguracoes}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold"
+              >
+                <Save size={18} />
+                Salvar Configurações
+              </button>
             </div>
           </div>
         )}
 
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <div className="flex items-center justify-between">
+        {/* Painel de Controle Principal */}
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Painel Administrativo
               </h1>
-              <p className="text-gray-600">Gerencie apostas e configurações</p>
+              <p className="text-sm text-gray-600">Gerencie apostas e configurações</p>
             </div>
             <button
               onClick={toggleBolao}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
+              className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
                 bolao?.esta_aberto
                   ? 'bg-red-600 hover:bg-red-700 text-white'
                   : 'bg-green-600 hover:bg-green-700 text-white'
@@ -229,8 +351,38 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">
+        {/* Painel de Lançamento de Resultado */}
+        {showResultado && (
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
+              Lançar Resultado do Sorteio
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Números Sorteados (formato: 1-2-3-4-5-6)
+                </label>
+                <input
+                  type="text"
+                  value={resultado}
+                  onChange={(e) => setResultado(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 text-gray-900 bg-white"
+                  placeholder="1-2-3-4-5-6"
+                />
+              </div>
+              <button
+                onClick={salvarResultado}
+                className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+              >
+                Salvar Resultado
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Lista de Apostas */}
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
             Gerenciar Apostas ({apostas.length})
           </h2>
 
@@ -247,10 +399,10 @@ export default function AdminPage() {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h3 className="font-semibold text-lg">
+                      <h3 className="font-semibold text-base sm:text-lg">
                         {aposta.nome_apostador}
                       </h3>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-xs sm:text-sm text-gray-500">
                         ID: #{aposta.id} | Status: {aposta.status}
                       </p>
                     </div>
@@ -262,7 +414,7 @@ export default function AdminPage() {
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="grid grid-cols-1 gap-4 mb-4">
                     <div>
                       <p className="text-sm font-medium text-gray-600 mb-2">
                         Jogo 1:
@@ -287,7 +439,7 @@ export default function AdminPage() {
                         {aposta.jogo_2.split(',').map((num, idx) => (
                           <span
                             key={idx}
-                            className="w-8 h-8 flex items-center justify-center bg-blue-600 text-white text-sm font-bold rounded-full"
+                            className="w-8 h-8 flex items-center justify-center bg-green-600 text-white text-sm font-bold rounded-full"
                           >
                             {num.padStart(2, '0')}
                           </span>
@@ -296,12 +448,12 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <button
                       onClick={() =>
                         updateApostaPaga(aposta.id, !aposta.aposta_paga)
                       }
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                      className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm ${
                         aposta.aposta_paga
                           ? 'bg-green-100 text-green-800'
                           : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
@@ -319,7 +471,7 @@ export default function AdminPage() {
                             !aposta.aposta_registrada
                           )
                         }
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                        className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm ${
                           aposta.aposta_registrada
                             ? 'bg-blue-100 text-blue-800'
                             : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
@@ -337,6 +489,10 @@ export default function AdminPage() {
             </div>
           )}
         </div>
+
+        <footer className="mt-6 text-center text-white text-sm">
+          by @walyssondosreis
+        </footer>
       </div>
     </div>
   );
