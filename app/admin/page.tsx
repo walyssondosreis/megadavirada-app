@@ -204,6 +204,12 @@ export default function AdminPage() {
   };
 
   const deleteAposta = async (id: number) => {
+    // Verificar se bolão está fechado
+    if (!bolao?.esta_aberto) {
+      alert('Não é possível excluir apostas com o bolão fechado!');
+      return;
+    }
+
     if (!confirm('Deseja realmente excluir esta aposta?')) return;
 
     const { error } = await supabase.from('apostas').delete().eq('id', id);
@@ -425,12 +431,23 @@ export default function AdminPage() {
                           ID: #{aposta.id} | Status: {aposta.status}
                         </p>
                       </div>
-                      <button
-                        onClick={() => deleteAposta(aposta.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                      {bolao?.esta_aberto ? (
+                        <button
+                          onClick={() => deleteAposta(aposta.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Excluir aposta"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      ) : (
+                        <button
+                          disabled
+                          className="p-2 text-gray-400 cursor-not-allowed rounded-lg"
+                          title="Não é possível excluir com bolão fechado"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 mb-4">
@@ -514,6 +531,6 @@ export default function AdminPage() {
           </footer>
         </div>
       </div>
-    </>
+    </> // ← ADICIONE ESTA LINHA - FECHAMENTO DO FRAGMENTO
   );
 }

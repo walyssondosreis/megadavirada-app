@@ -106,7 +106,8 @@ export default function LoginPage() {
 
             <div className="mt-6 p-3 bg-gray-50 rounded-lg">
               <p className="text-xs text-gray-600 text-center">
-                Credenciais padrão: admin / admin123
+                {/* Credenciais padrão: admin / admin123 */}
+                Apenas o administrador do bolão
               </p>
             </div>
           </div>

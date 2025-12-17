@@ -1,6 +1,10 @@
-- Ainda esta avançando automaticamente ao preencher o segundo jogo
-- Se bolão estiver fechado não permita de forma alguma exclusão de apostas
-- Alterar marcações de texto da mensagem whatsapp a ser compartilhada
-- Remova texto da mensagem compartilhada 'Aposta confirmada!'
-- A Navbar não esta pegando a mensagem de Titulo e subtitulo do bõlão que o super admin definiu na pagina Admin Configurações do bolão.
-- Alterar senha superadmine remover a senha visivel na pagina de login
+ok - Ainda esta avançando automaticamente ao preencher o segundo jogo
+ok - Se bolão estiver fechado não permita de forma alguma exclusão de apostas
+ok - A Navbar não esta pegando a mensagem de Titulo e subtitulo do bolão que o super admin definiu na pagina Admin Configurações do bolão.
+
+
+ok - Alterar senha superadmine remover a senha visivel na pagina de login
+ok - Remova texto da mensagem compartilhada 'Aposta confirmada!'
+ok- A mensagem compartilhada deve ter a marcação _Mensagem_ (undescore) na mensagem opcional para 
+que esta mensagem fique italico no whatsapp. os demais capos devem ser destacados sem ícones apenas
+com * texto * para destacar negrito na mensagem.

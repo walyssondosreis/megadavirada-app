@@ -16,7 +16,7 @@ export default function NovaApostaPage() {
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [copiedPix, setCopiedPix] = useState(false);
-  const [errors, setErrors] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -41,32 +41,32 @@ export default function NovaApostaPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     
-    const validationErrors: string[] = [];
+    setErrorMessage('');
 
+    // Validações
     if (!nomeApostador.trim()) {
-      validationErrors.push('Por favor, informe seu nome completo');
+      setErrorMessage('Por favor, informe seu nome completo');
+      return;
     }
 
     if (jogo1.length !== 6) {
-      validationErrors.push('Selecione exatamente 6 números para o Jogo 1');
+      setErrorMessage('Selecione exatamente 6 números para o Jogo 1');
+      return;
     }
 
     if (jogo2.length !== 6) {
-      validationErrors.push('Selecione exatamente 6 números para o Jogo 2');
-    }
-
-    if (validationErrors.length > 0) {
-      setErrors(validationErrors);
+      setErrorMessage('Selecione exatamente 6 números para o Jogo 2');
       return;
     }
 
     if (!bolao) {
+      setErrorMessage('Bolão não encontrado');
       return;
     }
 
     setLoading(true);
-    setErrors([]);
 
     try {
       const { error } = await supabase.from('apostas').insert({
@@ -85,7 +85,7 @@ export default function NovaApostaPage() {
       setShowSuccess(true);
     } catch (err) {
       console.error('Erro ao salvar aposta:', err);
-      setErrors(['Erro ao salvar aposta. Tente novamente.']);
+      setErrorMessage('Erro ao salvar aposta. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -107,12 +107,12 @@ export default function NovaApostaPage() {
     const jogo1Text = jogo1.map(n => n.toString().padStart(2, '0')).join(' - ');
     const jogo2Text = jogo2.map(n => n.toString().padStart(2, '0')).join(' - ');
     
-    const message = `🎰 *Aposta Registrada - ${bolao?.titulo || 'Bolão'}*\n\n` +
-      `👤 *Nome:* ${nomeApostador}\n\n` +
-      `🎲 *Jogo 1:* ${jogo1Text}\n` +
-      `🎲 *Jogo 2:* ${jogo2Text}\n` +
-      `${mensagem ? `\n💬 *Mensagem:* ${mensagem}` : ''}\n\n` +
-      `✅ Aposta confirmada!`;
+    const message = `*${bolao?.titulo || 'Bolão'}*\n\n` +
+      `*Nome:* ${nomeApostador}\n` +
+      `*Jogo 1:* ${jogo1Text}\n` +
+      `*Jogo 2:* ${jogo2Text}\n` +
+      `${mensagem ? `\n *Mensagem:* _${mensagem}_` : ''}` +
+      `\n(ㆆ_ㆆ)`;
 
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
@@ -202,13 +202,9 @@ export default function NovaApostaPage() {
               Nova Aposta - {bolao?.titulo}
             </h1>
 
-            {errors.length > 0 && (
+            {errorMessage && (
               <div className="mb-4 p-4 bg-red-50 border-2 border-red-200 rounded-lg">
-                <ul className="list-disc list-inside space-y-1">
-                  {errors.map((error, idx) => (
-                    <li key={idx} className="text-red-800 text-sm">{error}</li>
-                  ))}
-                </ul>
+                <p className="text-red-800 text-sm font-medium">{errorMessage}</p>
               </div>
             )}
 
@@ -220,8 +216,11 @@ export default function NovaApostaPage() {
                 <input
                   type="text"
                   value={nomeApostador}
-                  onChange={(e) => setNomeApostador(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900 bg-white placeholder-gray-400"
+                  onChange={(e) => {
+                    setNomeApostador(e.target.value);
+                    setErrorMessage('');
+                  }}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent bg-white"
                   placeholder="Digite seu nome completo"
                   style={{ color: '#111827' }}
                 />
@@ -230,7 +229,10 @@ export default function NovaApostaPage() {
               <div className="border-t pt-4">
                 <NumberSelector
                   selectedNumbers={jogo1}
-                  onNumbersChange={setJogo1}
+                  onNumbersChange={(nums) => {
+                    setJogo1(nums);
+                    setErrorMessage('');
+                  }}
                   label="Jogo 1 - Selecione 6 números"
                 />
               </div>
@@ -238,7 +240,10 @@ export default function NovaApostaPage() {
               <div className="border-t pt-4">
                 <NumberSelector
                   selectedNumbers={jogo2}
-                  onNumbersChange={setJogo2}
+                  onNumbersChange={(nums) => {
+                    setJogo2(nums);
+                    setErrorMessage('');
+                  }}
                   label="Jogo 2 - Selecione 6 números"
                 />
               </div>
@@ -249,8 +254,11 @@ export default function NovaApostaPage() {
                 </label>
                 <textarea
                   value={mensagem}
-                  onChange={(e) => setMensagem(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900 bg-white placeholder-gray-400"
+                  onChange={(e) => {
+                    setMensagem(e.target.value);
+                    setErrorMessage('');
+                  }}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent bg-white"
                   placeholder="Deixe uma mensagem personalizada..."
                   rows={3}
                   maxLength={100}

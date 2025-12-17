@@ -4,27 +4,31 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Trophy, Settings, LogIn, MessageCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, Bolao } from '@/lib/supabase';
 
 export default function Navbar() {
   const router = useRouter();
   const { user, isAdmin, logout } = useAuth();
-  const [linkWhatsapp, setLinkWhatsapp] = useState<string>('');
+  const [bolao, setBolao] = useState<Bolao | null>(null);
 
   useEffect(() => {
-    loadWhatsappLink();
+    loadBolao();
+    
+    // Recarregar a cada 5 segundos para pegar atualizações
+    const interval = setInterval(loadBolao, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  const loadWhatsappLink = async () => {
+  const loadBolao = async () => {
     const { data } = await supabase
       .from('boloes')
-      .select('link_whatsapp')
+      .select('*')
       .order('id', { ascending: false })
       .limit(1)
       .single();
 
-    if (data?.link_whatsapp) {
-      setLinkWhatsapp(data.link_whatsapp);
+    if (data) {
+      setBolao(data);
     }
   };
 
@@ -39,16 +43,18 @@ export default function Navbar() {
             <Trophy className="text-purple-600" size={32} />
             <div className="text-left">
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                Mega da Virada
+                {bolao?.titulo || '...Carregando'}
               </h1>
-              <p className="text-xs sm:text-sm text-gray-600">Bolão 2025</p>
+              <p className="text-xs sm:text-sm text-gray-600">
+                {bolao?.subtitulo || '...Carregando'}
+              </p>
             </div>
           </button>
           
           <div className="flex items-center gap-2 sm:gap-3">
-            {linkWhatsapp && (
+            {bolao?.link_whatsapp && (
               <a
-                href={linkWhatsapp}
+                href={bolao.link_whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm transition-colors"
@@ -76,7 +82,7 @@ export default function Navbar() {
                 Sair
               </button>
             ) : (
-              <button
+              <button hidden
                 onClick={() => router.push('/login')}
                 className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm"
               >
