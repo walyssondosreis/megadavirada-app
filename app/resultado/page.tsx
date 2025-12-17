@@ -55,7 +55,8 @@ export default function ResultadoPage() {
 
         if (apostasData) {
           // Ordenar os números do resultado
-          const resultado = bolaoData.resultado.split('-').map(Number).sort((a, b) => a - b);
+          const resultado = bolaoData.resultado.split('-').map(Number).sort((a: number, b: number) => a - b);
+          // const resultado = bolaoData.resultado.split('-').map(Number).sort((a, b) => a - b);
           
           const apostasProcessadas = apostasData.map((aposta) => {
             const jogo1 = aposta.jogo_1.split(',').map(Number);
