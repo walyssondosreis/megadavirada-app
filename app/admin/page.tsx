@@ -424,7 +424,7 @@ export default function AdminPage() {
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <h3 className="font-semibold text-base sm:text-lg">
+                        <h3 className="font-semibold text-base sm:text-lg text-black">
                           {aposta.nome_apostador}
                         </h3>
                         <p className="text-xs sm:text-sm text-gray-500">
