@@ -25,12 +25,12 @@ export default function AdminPage() {
   const [showResultado, setShowResultado] = useState(false);
   const [resultado, setResultado] = useState('');
   
-  // Estados para edição do bolão
   const [editTitulo, setEditTitulo] = useState('');
   const [editSubtitulo, setEditSubtitulo] = useState('');
   const [editConcurso, setEditConcurso] = useState('');
   const [editValorCota, setEditValorCota] = useState('');
   const [editLinkWhatsapp, setEditLinkWhatsapp] = useState('');
+  const [editChavePix, setEditChavePix] = useState('');
   
   const router = useRouter();
   const { isAdmin, user } = useAuth();
@@ -63,6 +63,7 @@ export default function AdminPage() {
         setEditConcurso(bolaoData.concurso.toString());
         setEditValorCota(bolaoData.valor_cota.toString());
         setEditLinkWhatsapp(bolaoData.link_whatsapp || '');
+        setEditChavePix(bolaoData.chave_pix || '');
         setResultado(bolaoData.resultado || '');
 
         const { data: apostasData } = await supabase
@@ -85,13 +86,20 @@ export default function AdminPage() {
 
     const novoStatus = !bolao.esta_aberto;
     
+    // Se está reabrindo o bolão, apagar o resultado
+    const updateData: any = { esta_aberto: novoStatus };
+    if (novoStatus) {
+      updateData.resultado = null;
+      setResultado('');
+    }
+
     const { error } = await supabase
       .from('boloes')
-      .update({ esta_aberto: novoStatus })
+      .update(updateData)
       .eq('id', bolao.id);
 
     if (!error) {
-      setBolao({ ...bolao, esta_aberto: novoStatus });
+      setBolao({ ...bolao, esta_aberto: novoStatus, resultado: novoStatus ? null : bolao.resultado });
       if (!novoStatus) {
         setShowResultado(true);
       }
@@ -109,6 +117,7 @@ export default function AdminPage() {
         concurso: parseInt(editConcurso),
         valor_cota: parseFloat(editValorCota),
         link_whatsapp: editLinkWhatsapp,
+        chave_pix: editChavePix || null,
       })
       .eq('id', bolao.id);
 
@@ -123,7 +132,6 @@ export default function AdminPage() {
   const salvarResultado = async () => {
     if (!bolao) return;
 
-    // Validar formato
     const regex = /^\d{1,2}-\d{1,2}-\d{1,2}-\d{1,2}-\d{1,2}-\d{1,2}$/;
     if (!regex.test(resultado)) {
       alert('Formato inválido! Use o formato: 1-2-3-4-5-6');
@@ -152,7 +160,6 @@ export default function AdminPage() {
     let newRegistrada = aposta.aposta_registrada;
 
     if (!pago) {
-      // Se desmarcar pago, volta para pendente e desmarca registrado
       newStatus = 'pendente';
       newRegistrada = false;
     } else {
@@ -233,7 +240,6 @@ export default function AdminPage() {
           </button>
         </div>
 
-        {/* Painel de Configurações */}
         {showConfig && (
           <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4">
             <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
@@ -308,6 +314,19 @@ export default function AdminPage() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Chave PIX para Pagamento
+                </label>
+                <input
+                  type="text"
+                  value={editChavePix}
+                  onChange={(e) => setEditChavePix(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 text-gray-900 bg-white"
+                  placeholder="email@exemplo.com ou CPF ou telefone"
+                />
+              </div>
+
               <button
                 onClick={salvarConfiguracoes}
                 className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold"
@@ -319,7 +338,6 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Painel de Controle Principal */}
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
@@ -351,7 +369,6 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Painel de Lançamento de Resultado */}
         {showResultado && (
           <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4">
             <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
@@ -380,7 +397,6 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Lista de Apostas */}
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
             Gerenciar Apostas ({apostas.length})

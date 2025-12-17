@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase, Bolao } from '@/lib/supabase';
 import NumberSelector from '@/components/NumberSelector';
-import { ArrowLeft, Check, Share2 } from 'lucide-react';
+import { ArrowLeft, Check, Share2, Copy } from 'lucide-react';
 
 export default function NovaApostaPage() {
   const [bolao, setBolao] = useState<Bolao | null>(null);
@@ -14,6 +14,7 @@ export default function NovaApostaPage() {
   const [mensagem, setMensagem] = useState('');
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [copiedPix, setCopiedPix] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -85,19 +86,36 @@ export default function NovaApostaPage() {
     }
   };
 
+  const copyPixKey = async () => {
+    if (!bolao?.chave_pix) return;
+    
+    try {
+      await navigator.clipboard.writeText(bolao.chave_pix);
+      setCopiedPix(true);
+      setTimeout(() => setCopiedPix(false), 3000);
+    } catch (err) {
+      alert('Erro ao copiar chave PIX');
+    }
+  };
+
   const shareWhatsApp = () => {
     if (!bolao?.link_whatsapp) {
       alert('Link do WhatsApp não configurado');
       return;
     }
 
-    const message = `🎰 Aposta registrada!\n\n` +
-      `Apostador: ${nomeApostador}\n` +
-      `Jogo 1: ${jogo1.map(n => n.toString().padStart(2, '0')).join(', ')}\n` +
-      `Jogo 2: ${jogo2.map(n => n.toString().padStart(2, '0')).join(', ')}\n` +
-      `${mensagem ? `\nMensagem: ${mensagem}` : ''}`;
+    const jogo1Text = jogo1.map(n => n.toString().padStart(2, '0')).join(' - ');
+    const jogo2Text = jogo2.map(n => n.toString().padStart(2, '0')).join(' - ');
+    
+    const message = `🎰 *Aposta Registrada - ${bolao.titulo}*\n\n` +
+      `👤 *Nome:* ${nomeApostador}\n\n` +
+      `🎲 *Jogo 1:* ${jogo1Text}\n` +
+      `🎲 *Jogo 2:* ${jogo2Text}\n` +
+      `${mensagem ? `\n💬 *Mensagem:* ${mensagem}` : ''}\n\n` +
+      `✅ Aposta confirmada!`;
 
-    window.open(bolao.link_whatsapp, '_blank');
+    const whatsappUrl = `${bolao.link_whatsapp}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   if (showSuccess) {
@@ -113,6 +131,27 @@ export default function NovaApostaPage() {
           <p className="text-gray-600 mb-6">
             Sua aposta foi salva com sucesso. Boa sorte!
           </p>
+
+          {bolao?.chave_pix && (
+            <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+              <p className="text-sm font-medium text-gray-700 mb-2">
+                Realize o pagamento via PIX:
+              </p>
+              <button
+                onClick={copyPixKey}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+              >
+                <Copy size={18} />
+                {copiedPix ? 'Chave Copiada!' : 'Copiar Chave PIX'}
+              </button>
+              <p className="text-xs text-gray-600 mt-2 break-all">
+                {bolao.chave_pix}
+              </p>
+              <p className="text-sm font-bold text-blue-700 mt-2">
+                Valor: R$ {bolao.valor_cota.toFixed(2)}
+              </p>
+            </div>
+          )}
 
           <div className="space-y-3">
             {bolao?.link_whatsapp && (
@@ -131,28 +170,32 @@ export default function NovaApostaPage() {
               Ver Todas as Apostas
             </button>
           </div>
+
+          <footer className="mt-8 text-gray-500 text-sm">
+            by @walyssondosreis
+          </footer>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 py-4 px-4">
+      <div className="max-w-2xl mx-auto">
         <button
           onClick={() => router.push('/')}
-          className="flex items-center gap-2 text-white mb-6 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2 text-white mb-4 hover:opacity-80 transition-opacity"
         >
           <ArrowLeft size={20} />
           Voltar
         </button>
 
-        <div className="bg-white rounded-xl shadow-2xl p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">
+        <div className="bg-white rounded-xl shadow-2xl p-4 sm:p-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 text-center">
             Nova Aposta - {bolao?.titulo}
           </h1>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Nome Completo *
@@ -161,13 +204,14 @@ export default function NovaApostaPage() {
                 type="text"
                 value={nomeApostador}
                 onChange={(e) => setNomeApostador(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900 bg-white placeholder-gray-400"
                 placeholder="Digite seu nome completo"
                 required
+                style={{ color: '#111827' }}
               />
             </div>
 
-            <div className="border-t pt-6">
+            <div className="border-t pt-4">
               <NumberSelector
                 selectedNumbers={jogo1}
                 onNumbersChange={setJogo1}
@@ -175,7 +219,7 @@ export default function NovaApostaPage() {
               />
             </div>
 
-            <div className="border-t pt-6">
+            <div className="border-t pt-4">
               <NumberSelector
                 selectedNumbers={jogo2}
                 onNumbersChange={setJogo2}
@@ -190,10 +234,11 @@ export default function NovaApostaPage() {
               <textarea
                 value={mensagem}
                 onChange={(e) => setMensagem(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900 bg-white placeholder-gray-400"
                 placeholder="Deixe uma mensagem personalizada..."
                 rows={3}
                 maxLength={100}
+                style={{ color: '#111827' }}
               />
               <p className="text-sm text-gray-500 mt-1">
                 {mensagem.length}/100 caracteres
@@ -209,6 +254,10 @@ export default function NovaApostaPage() {
             </button>
           </form>
         </div>
+
+        <footer className="mt-6 text-center text-white text-sm">
+          by @walyssondosreis
+        </footer>
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase, Bolao, Aposta } from '@/lib/supabase';
-import { Trophy, Award, Frown, ArrowLeft } from 'lucide-react';
+import { Trophy, Award, Frown, ArrowLeft, Search } from 'lucide-react';
 
 interface ApostaComAcertos extends Aposta {
   acertos_jogo1: number;
@@ -15,12 +15,20 @@ interface ApostaComAcertos extends Aposta {
 export default function ResultadoPage() {
   const [bolao, setBolao] = useState<Bolao | null>(null);
   const [apostasComAcertos, setApostasComAcertos] = useState<ApostaComAcertos[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     loadData();
   }, []);
+
+  const filteredApostas = useMemo(() => {
+    if (!searchTerm) return apostasComAcertos;
+    return apostasComAcertos.filter(aposta => 
+      aposta.nome_apostador.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [apostasComAcertos, searchTerm]);
 
   const loadData = async () => {
     try {
@@ -167,18 +175,33 @@ export default function ResultadoPage() {
 
         {/* Ranking de Apostas */}
         <div className="bg-white rounded-xl shadow-2xl p-4 sm:p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
             <Award className="text-purple-600" size={24} />
             Ranking de Apostas
           </h2>
 
-          {apostasComAcertos.length === 0 ? (
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900 bg-white placeholder-gray-400"
+                placeholder="Buscar por nome..."
+              />
+            </div>
+          </div>
+
+          {filteredApostas.length === 0 ? (
             <p className="text-center text-gray-500 py-8">
-              Nenhuma aposta encontrada
+              {searchTerm ? 'Nenhuma aposta encontrada com esse nome' : 'Nenhuma aposta encontrada'}
             </p>
           ) : (
             <div className="space-y-4">
-              {apostasComAcertos.map((aposta, index) => (
+              {filteredApostas.map((aposta, index) => {
+                const originalIndex = apostasComAcertos.findIndex(a => a.id === aposta.id);
+                return (
                 <div
                   key={aposta.id}
                   className={`border-2 rounded-lg p-4 ${
@@ -190,12 +213,12 @@ export default function ResultadoPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
-                        index === 0 ? 'bg-yellow-400 text-white' :
-                        index === 1 ? 'bg-gray-400 text-white' :
-                        index === 2 ? 'bg-orange-600 text-white' :
+                        originalIndex === 0 ? 'bg-yellow-400 text-white' :
+                        originalIndex === 1 ? 'bg-gray-400 text-white' :
+                        originalIndex === 2 ? 'bg-orange-600 text-white' :
                         'bg-gray-200 text-gray-700'
                       }`}>
-                        {index + 1}º
+                        {originalIndex + 1}º
                       </div>
                       <div>
                         <h3 className="font-bold text-lg text-gray-900">
@@ -244,7 +267,8 @@ export default function ResultadoPage() {
                     </div>
                   )}
                 </div>
-              ))}
+              );
+            })}
             </div>
           )}
         </div>

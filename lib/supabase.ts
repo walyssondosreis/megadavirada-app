@@ -28,6 +28,7 @@ export interface Bolao {
   atualizado_em: string;
   resultado: string | null;
   link_whatsapp: string;
+  chave_pix: string | null;
 }
 
 export interface Aposta {
