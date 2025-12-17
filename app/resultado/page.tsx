@@ -62,8 +62,8 @@ export default function ResultadoPage() {
             const jogo1 = aposta.jogo_1.split(',').map(Number);
             const jogo2 = aposta.jogo_2.split(',').map(Number);
 
-            const acertos_jogo1 = jogo1.filter(num => resultado.includes(num)).length;
-            const acertos_jogo2 = jogo2.filter(num => resultado.includes(num)).length;
+            const acertos_jogo1 = jogo1.filter((num: number) => resultado.includes(num)).length;
+            const acertos_jogo2 = jogo2.filter((num: number) => resultado.includes(num)).length;
             const total_acertos = Math.max(acertos_jogo1, acertos_jogo2);
             const ganhou = acertos_jogo1 >= 4 || acertos_jogo2 >= 4;
 
