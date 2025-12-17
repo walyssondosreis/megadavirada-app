@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase, Bolao, Aposta } from '@/lib/supabase';
+import Navbar from '@/components/Navbar';
 import { Trophy, Award, Frown, ArrowLeft, Search } from 'lucide-react';
 
 interface ApostaComAcertos extends Aposta {
@@ -43,7 +44,6 @@ export default function ResultadoPage() {
         setBolao(bolaoData);
 
         if (!bolaoData.resultado) {
-          alert('Resultado ainda não foi lançado');
           router.push('/');
           return;
         }
@@ -54,7 +54,8 @@ export default function ResultadoPage() {
           .eq('bolao_id', bolaoData.id);
 
         if (apostasData) {
-          const resultado = bolaoData.resultado.split('-').map(Number);
+          // Ordenar os números do resultado
+          const resultado = bolaoData.resultado.split('-').map(Number).sort((a, b) => a - b);
           
           const apostasProcessadas = apostasData.map((aposta) => {
             const jogo1 = aposta.jogo_1.split(',').map(Number);
@@ -125,158 +126,162 @@ export default function ResultadoPage() {
     return null;
   }
 
-  const resultado = bolao.resultado.split('-').map(Number);
+  // Ordenar números do resultado
+  const resultado = bolao.resultado.split('-').map(Number).sort((a, b) => a - b);
   const vencedores = apostasComAcertos.filter(a => a.ganhou);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 py-4 px-4">
-      <div className="max-w-4xl mx-auto">
-        <button
-          onClick={() => router.push('/')}
-          className="flex items-center gap-2 text-white mb-4 hover:opacity-80 transition-opacity"
-        >
-          <ArrowLeft size={20} />
-          Voltar
-        </button>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 py-4 px-4">
+        <div className="max-w-4xl mx-auto">
+          <button
+            onClick={() => router.push('/')}
+            className="flex items-center gap-2 text-white mb-4 hover:opacity-80 transition-opacity"
+          >
+            <ArrowLeft size={20} />
+            Voltar
+          </button>
 
-        {/* Header com Resultado */}
-        <div className="bg-white rounded-xl shadow-2xl p-6 mb-6 text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Trophy className="text-yellow-500" size={40} />
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              Resultado - {bolao.titulo}
-            </h1>
-          </div>
-          
-          <p className="text-gray-600 mb-4">Concurso {bolao.concurso}</p>
-
-          <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg p-4">
-            <p className="text-sm font-medium text-gray-700 mb-3">Números Sorteados:</p>
-            <div className="flex justify-center flex-wrap gap-3">
-              {resultado.map((num, idx) => (
-                <span
-                  key={idx}
-                  className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-yellow-400 to-yellow-600 text-white text-lg font-bold rounded-full shadow-lg"
-                >
-                  {num.toString().padStart(2, '0')}
-                </span>
-              ))}
+          {/* Header com Resultado */}
+          <div className="bg-white rounded-xl shadow-2xl p-6 mb-6 text-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Trophy className="text-yellow-500" size={40} />
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                Resultado - {bolao.titulo}
+              </h1>
             </div>
+            
+            <p className="text-gray-600 mb-4">Concurso {bolao.concurso}</p>
+
+            <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg p-4">
+              <p className="text-sm font-medium text-gray-700 mb-3">Números Sorteados:</p>
+              <div className="flex justify-center flex-wrap gap-3">
+                {resultado.map((num, idx) => (
+                  <span
+                    key={idx}
+                    className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-yellow-400 to-yellow-600 text-white text-lg font-bold rounded-full shadow-lg"
+                  >
+                    {num.toString().padStart(2, '0')}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {vencedores.length > 0 && (
+              <div className="mt-4 p-4 bg-green-50 border-2 border-green-500 rounded-lg">
+                <p className="text-green-800 font-bold text-lg">
+                  🎉 {vencedores.length} Ganhador{vencedores.length !== 1 ? 'es' : ''}!
+                </p>
+              </div>
+            )}
           </div>
 
-          {vencedores.length > 0 && (
-            <div className="mt-4 p-4 bg-green-50 border-2 border-green-500 rounded-lg">
-              <p className="text-green-800 font-bold text-lg">
-                🎉 {vencedores.length} Ganhador{vencedores.length !== 1 ? 'es' : ''}!
+          {/* Ranking de Apostas */}
+          <div className="bg-white rounded-xl shadow-2xl p-4 sm:p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Award className="text-purple-600" size={24} />
+              Ranking de Apostas
+            </h2>
+
+            <div className="mb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900 bg-white placeholder-gray-400"
+                  placeholder="Buscar por nome..."
+                />
+              </div>
+            </div>
+
+            {filteredApostas.length === 0 ? (
+              <p className="text-center text-gray-500 py-8">
+                {searchTerm ? 'Nenhuma aposta encontrada com esse nome' : 'Nenhuma aposta encontrada'}
               </p>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredApostas.map((aposta, index) => {
+                  const originalIndex = apostasComAcertos.findIndex(a => a.id === aposta.id);
+                  return (
+                    <div
+                      key={aposta.id}
+                      className={`border-2 rounded-lg p-4 ${
+                        aposta.ganhou
+                          ? 'border-green-500 bg-green-50'
+                          : 'border-gray-200 bg-white'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                            originalIndex === 0 ? 'bg-yellow-400 text-white' :
+                            originalIndex === 1 ? 'bg-gray-400 text-white' :
+                            originalIndex === 2 ? 'bg-orange-600 text-white' :
+                            'bg-gray-200 text-gray-700'
+                          }`}>
+                            {originalIndex + 1}º
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-lg text-gray-900">
+                              {aposta.nome_apostador}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              {aposta.total_acertos} acerto{aposta.total_acertos !== 1 ? 's' : ''} no melhor jogo
+                            </p>
+                          </div>
+                        </div>
 
-        {/* Ranking de Apostas */}
-        <div className="bg-white rounded-xl shadow-2xl p-4 sm:p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <Award className="text-purple-600" size={24} />
-            Ranking de Apostas
-          </h2>
+                        {aposta.ganhou ? (
+                          <div className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-bold">
+                            <Trophy size={18} />
+                            GANHOU
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 px-4 py-2 bg-gray-400 text-white rounded-lg font-bold">
+                            <Frown size={18} />
+                            PERDEU
+                          </div>
+                        )}
+                      </div>
 
-          <div className="mb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900 bg-white placeholder-gray-400"
-                placeholder="Buscar por nome..."
-              />
-            </div>
+                      <div className="space-y-4">
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 mb-2">
+                            Jogo 1 ({aposta.acertos_jogo1} acertos):
+                          </p>
+                          {renderNumeros(aposta.jogo_1, resultado, aposta.acertos_jogo1)}
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 mb-2">
+                            Jogo 2 ({aposta.acertos_jogo2} acertos):
+                          </p>
+                          {renderNumeros(aposta.jogo_2, resultado, aposta.acertos_jogo2)}
+                        </div>
+                      </div>
+
+                      {aposta.mensagem && (
+                        <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+                          <p className="text-sm text-gray-700 italic">
+                            "{aposta.mensagem}"
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
-          {filteredApostas.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">
-              {searchTerm ? 'Nenhuma aposta encontrada com esse nome' : 'Nenhuma aposta encontrada'}
-            </p>
-          ) : (
-            <div className="space-y-4">
-              {filteredApostas.map((aposta, index) => {
-                const originalIndex = apostasComAcertos.findIndex(a => a.id === aposta.id);
-                return (
-                <div
-                  key={aposta.id}
-                  className={`border-2 rounded-lg p-4 ${
-                    aposta.ganhou
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-200 bg-white'
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
-                        originalIndex === 0 ? 'bg-yellow-400 text-white' :
-                        originalIndex === 1 ? 'bg-gray-400 text-white' :
-                        originalIndex === 2 ? 'bg-orange-600 text-white' :
-                        'bg-gray-200 text-gray-700'
-                      }`}>
-                        {originalIndex + 1}º
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg text-gray-900">
-                          {aposta.nome_apostador}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {aposta.total_acertos} acerto{aposta.total_acertos !== 1 ? 's' : ''} no melhor jogo
-                        </p>
-                      </div>
-                    </div>
-
-                    {aposta.ganhou ? (
-                      <div className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-bold">
-                        <Trophy size={18} />
-                        GANHOU
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 px-4 py-2 bg-gray-400 text-white rounded-lg font-bold">
-                        <Frown size={18} />
-                        PERDEU
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 mb-2">
-                        Jogo 1 ({aposta.acertos_jogo1} acertos):
-                      </p>
-                      {renderNumeros(aposta.jogo_1, resultado, aposta.acertos_jogo1)}
-                    </div>
-
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 mb-2">
-                        Jogo 2 ({aposta.acertos_jogo2} acertos):
-                      </p>
-                      {renderNumeros(aposta.jogo_2, resultado, aposta.acertos_jogo2)}
-                    </div>
-                  </div>
-
-                  {aposta.mensagem && (
-                    <div className="mt-4 p-3 bg-gray-100 rounded-lg">
-                      <p className="text-sm text-gray-700 italic">
-                        "{aposta.mensagem}"
-                      </p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-            </div>
-          )}
+          <footer className="mt-6 text-center text-white text-sm">
+            by @walyssondosreis
+          </footer>
         </div>
-
-        <footer className="mt-6 text-center text-white text-sm">
-          by @walyssondosreis
-        </footer>
       </div>
-    </div>
+    </>
   );
 }
