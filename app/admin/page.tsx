@@ -425,7 +425,13 @@ export default function AdminPage() {
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <h3 className="font-semibold text-base sm:text-lg text-black">
-                          {aposta.nome_apostador}
+                          {aposta.nome_apostador
+                          .trim()
+                          .split(' ')
+                          .map(palavra => 
+                            palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase()
+                          )
+                          .join(' ')}
                         </h3>
                         <p className="text-xs sm:text-sm text-gray-500">
                           ID: #{aposta.id} | Status: {aposta.status}

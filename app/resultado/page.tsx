@@ -227,7 +227,13 @@ export default function ResultadoPage() {
                           </div>
                           <div>
                             <h3 className="font-bold text-lg text-gray-900">
-                              {aposta.nome_apostador}
+                              {aposta.nome_apostador
+                                .trim()
+                                .split(' ')
+                                .map(palavra => 
+                                  palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase()
+                                )
+                                .join(' ')}
                             </h3>
                             <p className="text-sm text-gray-600">
                               {aposta.total_acertos} acerto{aposta.total_acertos !== 1 ? 's' : ''} no melhor jogo
