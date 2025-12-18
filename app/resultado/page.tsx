@@ -117,7 +117,7 @@ export default function ResultadoPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 to-blue-600">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 to-gray-900">
         <div className="text-white text-xl">Carregando...</div>
       </div>
     );
@@ -134,7 +134,7 @@ export default function ResultadoPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 py-4 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-green-900 to-gray-900 py-4 px-4">
         <div className="max-w-4xl mx-auto">
           <button
             onClick={() => router.push('/')}

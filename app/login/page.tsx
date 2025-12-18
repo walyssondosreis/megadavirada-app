@@ -36,7 +36,7 @@ export default function LoginPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-green-900 to-gray-900 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <button
             onClick={() => router.push('/')}

@@ -89,14 +89,14 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 to-blue-600">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 to-gray-900">
         <div className="text-white text-xl">Carregando...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600">
+    <div className="min-h-screen bg-gradient-to-br from-green-900 to-gray-900">
       <Navbar />
 
       <main className="max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8">

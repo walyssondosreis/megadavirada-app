@@ -122,7 +122,7 @@ export default function NovaApostaPage() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-green-900 to-gray-900 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full text-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="text-green-600" size={40} />
@@ -186,7 +186,7 @@ export default function NovaApostaPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 py-4 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-green-900 to-gray-900 py-4 px-4">
         <div className="max-w-2xl mx-auto">
           <button
             type="button"

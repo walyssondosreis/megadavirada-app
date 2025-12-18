@@ -33,37 +33,30 @@ export default function Navbar() {
   };
 
   return (
-    <header className="bg-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
+    <header className="bg-gray-100 shadow-md">
+      <div className="max-w-full mx-auto">
+        <div className="flex items-center justify-center bg-gray-50">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity py-2"
           >
-            <Trophy className="text-purple-600" size={32} />
-            <div className="text-left">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+            <img 
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREHPemCyT-hC_xPyIMfOwfby1FM68c4GKOdg&s" 
+              alt="Ícone" 
+              className="w-8 h-8" 
+            />
+            <div className="text-center">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 ">
                 {bolao?.titulo || '...Carregando'}
               </h1>
-              <p className="text-xs sm:text-sm text-gray-600">
+              <p className="text-xs sm:text-sm text-gray-900">
                 {bolao?.subtitulo || '...Carregando'}
               </p>
             </div>
           </button>
+          </div>
           
-          <div className="flex items-center gap-2 sm:gap-3">
-            {bolao?.link_whatsapp && (
-              <a
-                href={bolao.link_whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm transition-colors"
-              >
-                <MessageCircle size={18} />
-                <span className="hidden sm:inline">Grupo</span>
-              </a>
-            )}
-            
+            <div className='flex justify-end bg-white gap-2 py-2 px-4'>
             {isAdmin && (
               <button
                 onClick={() => router.push('/admin')}
@@ -91,7 +84,20 @@ export default function Navbar() {
               </button>
             )}
           </div>
-        </div>
+          <div className="flex gap-2 sm:gap-3">
+            {bolao?.link_whatsapp && (
+              <a
+                href={bolao.link_whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 sm:px-4 py-1 bg-green-900 text-white hover:bg-green-700 text-sm transition-colors w-full justify-center"
+              >
+                <MessageCircle size={18} />
+                <span className="">Grupo WhatsApp</span>
+              </a>
+            )}
+            </div>
+        {/* </div> */}
       </div>
     </header>
   );
