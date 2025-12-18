@@ -56,8 +56,8 @@ export default function Navbar() {
           </button>
           </div>
           
-            <div className='flex justify-end bg-white gap-2 py-2 px-4'>
             {isAdmin && (
+            <div className='flex justify-end bg-white gap-2 py-2 px-4'>
               <button
                 onClick={() => router.push('/admin')}
                 className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm"
@@ -65,15 +65,16 @@ export default function Navbar() {
                 <Settings size={18} />
                 <span className="hidden sm:inline">Admin</span>
               </button>
-            )}
-            
-            {user ? (
               <button
                 onClick={logout}
                 className="px-3 sm:px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm"
               >
                 Sair
               </button>
+            </div>
+            )}
+            
+            {/* {user ? (
             ) : (
               <button hidden
                 onClick={() => router.push('/login')}
@@ -82,8 +83,7 @@ export default function Navbar() {
                 <LogIn size={18} />
                 <span className="hidden sm:inline">Login</span>
               </button>
-            )}
-          </div>
+            )} */}
           <div className="flex gap-2 sm:gap-3">
             {bolao?.link_whatsapp && (
               <a
