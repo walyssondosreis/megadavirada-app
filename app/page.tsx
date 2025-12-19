@@ -89,14 +89,14 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 to-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-200">
         <div className="text-white text-xl">Carregando...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-900 to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-200 to-gray-200">
       <Navbar />
 
       <main className="max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
@@ -261,8 +261,15 @@ export default function HomePage() {
           )}
         </div>
 
-        <footer className="mt-8 text-center text-white text-sm">
-          by @walyssondosreis
+        <footer className="mt-8 text-center text-black text-sm">
+          <a 
+  href="https://inov4dev-app.vercel.app/" 
+  target="_blank" 
+  rel="noopener noreferrer"
+  className="hover:text-yellow-300 transition-colors"
+>
+  Inov4Dev © {new Date().getFullYear()}
+</a>
         </footer>
       </main>
     </div>

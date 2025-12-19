@@ -36,11 +36,11 @@ export default function LoginPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-green-900 to-gray-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-200 to-gray-200 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-white mb-6 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 text-black mb-6 hover:opacity-80 transition-opacity"
           >
             <ArrowLeft size={20} />
             Voltar
@@ -112,8 +112,15 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <footer className="mt-8 text-center text-white text-sm">
-            by @walyssondosreis
+          <footer className="mt-8 text-center text-black text-sm">
+            <a 
+  href="https://inov4dev-app.vercel.app/" 
+  target="_blank" 
+  rel="noopener noreferrer"
+  className="hover:text-yellow-300 transition-colors"
+>
+  Inov4Dev © {new Date().getFullYear()}
+</a>
           </footer>
         </div>
       </div>

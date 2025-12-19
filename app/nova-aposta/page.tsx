@@ -122,7 +122,7 @@ export default function NovaApostaPage() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-gradient-to-br from-green-900 to-gray-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-gray-200 to-gray-200 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full text-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="text-green-600" size={40} />
@@ -174,8 +174,15 @@ export default function NovaApostaPage() {
               </button>
             </div>
 
-            <footer className="mt-8 text-gray-500 text-sm">
-              by @walyssondosreis
+            <footer className="mt-8 text-black text-sm">
+              <a 
+  href="https://inov4dev-app.vercel.app/" 
+  target="_blank" 
+  rel="noopener noreferrer"
+  className="hover:text-yellow-300 transition-colors"
+>
+  Inov4Dev © {new Date().getFullYear()}
+</a>
             </footer>
           </div>
         </div>
@@ -186,12 +193,12 @@ export default function NovaApostaPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-green-900 to-gray-900 py-4 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-200 to-gray-200 py-4 px-4">
         <div className="max-w-2xl mx-auto">
           <button
             type="button"
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-white mb-4 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 text-black mb-4 hover:opacity-80 transition-opacity"
           >
             <ArrowLeft size={20} />
             Voltar
@@ -279,8 +286,15 @@ export default function NovaApostaPage() {
             </form>
           </div>
 
-          <footer className="mt-6 text-center text-white text-sm">
-            by @walyssondosreis
+          <footer className="mt-6 text-center text-black text-sm">
+            <a 
+  href="https://inov4dev-app.vercel.app/" 
+  target="_blank" 
+  rel="noopener noreferrer"
+  className="hover:text-yellow-300 transition-colors"
+>
+  Inov4Dev © {new Date().getFullYear()}
+</a>
           </footer>
         </div>
       </div>

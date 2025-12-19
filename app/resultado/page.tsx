@@ -117,7 +117,7 @@ export default function ResultadoPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 to-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-200">
         <div className="text-white text-xl">Carregando...</div>
       </div>
     );
@@ -134,11 +134,11 @@ export default function ResultadoPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-green-900 to-gray-900 py-4 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-200 to-gray-200 py-4 px-4">
         <div className="max-w-4xl mx-auto">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-white mb-4 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 text-black mb-4 hover:opacity-80 transition-opacity"
           >
             <ArrowLeft size={20} />
             Voltar
@@ -284,8 +284,15 @@ export default function ResultadoPage() {
             )}
           </div>
 
-          <footer className="mt-6 text-center text-white text-sm">
-            by @walyssondosreis
+          <footer className="mt-6 text-center text-black text-sm">
+            <a 
+  href="https://inov4dev-app.vercel.app/" 
+  target="_blank" 
+  rel="noopener noreferrer"
+  className="hover:text-yellow-300 transition-colors"
+>
+  Inov4Dev © {new Date().getFullYear()}
+</a>
           </footer>
         </div>
       </div>

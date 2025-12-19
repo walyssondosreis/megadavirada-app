@@ -16,6 +16,8 @@ import {
   ChevronDown,
   ChevronUp,
   Save,
+  Trophy,
+  AlertCircle,
 } from 'lucide-react';
 
 export default function AdminPage() {
@@ -23,7 +25,6 @@ export default function AdminPage() {
   const [apostas, setApostas] = useState<Aposta[]>([]);
   const [loading, setLoading] = useState(true);
   const [showConfig, setShowConfig] = useState(false);
-  const [showResultado, setShowResultado] = useState(false);
   const [resultado, setResultado] = useState('');
   
   const [editTitulo, setEditTitulo] = useState('');
@@ -82,8 +83,41 @@ export default function AdminPage() {
     }
   };
 
+  // Função para verificar se todas as apostas estão registradas
+  const todasApostasRegistradas = () => {
+    if (apostas.length === 0) return true; // Se não houver apostas, pode fechar
+    return apostas.every(aposta => aposta.status === 'registrado');
+  };
+
+  // Função para contar apostas não registradas
+  const contarApostasNaoRegistradas = () => {
+    return apostas.filter(aposta => aposta.status !== 'registrado').length;
+  };
+
+  // Verifica se pode excluir aposta
+  const podeExcluirAposta = (aposta: Aposta) => {
+    // Não pode excluir se bolão estiver fechado
+    if (!bolao?.esta_aberto) return false;
+    // Não pode excluir se aposta estiver marcada como pago
+    if (aposta.aposta_paga) return false;
+    return true;
+  };
+
+  // Verifica se pode alterar status da aposta
+  const podeAlterarStatusAposta = () => {
+    // Não pode alterar status se bolão estiver fechado
+    return bolao?.esta_aberto === true;
+  };
+
   const toggleBolao = async () => {
     if (!bolao) return;
+
+    // Se está tentando fechar o bolão, verificar se todas as apostas estão registradas
+    if (bolao.esta_aberto && !todasApostasRegistradas()) {
+      const naoRegistradas = contarApostasNaoRegistradas();
+      alert(`Não é possível fechar o bolão! Existem ${naoRegistradas} aposta(s) não registrada(s).\n\nPor favor, marque todas as apostas como "Registrado" antes de fechar o bolão.`);
+      return;
+    }
 
     const novoStatus = !bolao.esta_aberto;
     
@@ -101,9 +135,6 @@ export default function AdminPage() {
 
     if (!error) {
       setBolao({ ...bolao, esta_aberto: novoStatus, resultado: novoStatus ? null : bolao.resultado });
-      if (!novoStatus) {
-        setShowResultado(true);
-      }
     }
   };
 
@@ -147,13 +178,18 @@ export default function AdminPage() {
     if (!error) {
       alert('Resultado salvo com sucesso!');
       setBolao({ ...bolao, resultado });
-      setShowResultado(false);
     } else {
       alert('Erro ao salvar resultado');
     }
   };
 
   const updateApostaPaga = async (id: number, pago: boolean) => {
+    // Verificar se pode alterar status
+    if (!podeAlterarStatusAposta()) {
+      alert('Não é possível alterar o status da aposta com o bolão fechado!');
+      return;
+    }
+
     const aposta = apostas.find(a => a.id === id);
     if (!aposta) return;
 
@@ -186,6 +222,12 @@ export default function AdminPage() {
   };
 
   const updateApostaRegistrada = async (id: number, registrado: boolean) => {
+    // Verificar se pode alterar status
+    if (!podeAlterarStatusAposta()) {
+      alert('Não é possível alterar o status da aposta com o bolão fechado!');
+      return;
+    }
+
     const newStatus = registrado ? 'registrado' : 'pago';
     const { error } = await supabase
       .from('apostas')
@@ -204,9 +246,18 @@ export default function AdminPage() {
   };
 
   const deleteAposta = async (id: number) => {
-    // Verificar se bolão está fechado
-    if (!bolao?.esta_aberto) {
-      alert('Não é possível excluir apostas com o bolão fechado!');
+    const aposta = apostas.find(a => a.id === id);
+    if (!aposta) return;
+
+    // Verificar se pode excluir a aposta
+    if (!podeExcluirAposta(aposta)) {
+      let mensagem = '';
+      if (!bolao?.esta_aberto) {
+        mensagem = 'Não é possível excluir apostas com o bolão fechado!';
+      } else if (aposta.aposta_paga) {
+        mensagem = 'Não é possível excluir apostas que já foram marcadas como pagas!';
+      }
+      alert(mensagem);
       return;
     }
 
@@ -221,7 +272,7 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 to-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-200">
         <div className="text-white text-xl">Carregando...</div>
       </div>
     );
@@ -230,12 +281,12 @@ export default function AdminPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-green-900 to-gray-900 py-4 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-200 to-gray-200 py-4 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => router.push('/')}
-              className="flex items-center gap-2 text-white hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 text-black hover:opacity-80 transition-opacity"
             >
               <ArrowLeft size={20} />
               Voltar
@@ -348,7 +399,7 @@ export default function AdminPage() {
           )}
 
           <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                   Painel Administrativo
@@ -359,14 +410,20 @@ export default function AdminPage() {
                 onClick={toggleBolao}
                 className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
                   bolao?.esta_aberto
-                    ? 'bg-red-600 hover:bg-red-700 text-white'
+                    ? todasApostasRegistradas()
+                      ? 'bg-red-600 hover:bg-red-700 text-white'
+                      : 'bg-gray-400 cursor-not-allowed text-white'
                     : 'bg-green-600 hover:bg-green-700 text-white'
                 }`}
+                disabled={bolao?.esta_aberto && !todasApostasRegistradas()}
               >
                 {bolao?.esta_aberto ? (
                   <>
                     <Lock size={20} />
                     Fechar Bolão
+                    {!todasApostasRegistradas() && (
+                      <AlertCircle size={18} className="ml-1" />
+                    )}
                   </>
                 ) : (
                   <>
@@ -376,40 +433,79 @@ export default function AdminPage() {
                 )}
               </button>
             </div>
+
+            {/* Mensagem de alerta quando não puder fechar o bolão */}
+            {bolao?.esta_aberto && !todasApostasRegistradas() && (
+              <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
+                  <div>
+                    <p className="text-sm font-medium text-yellow-800">
+                      Não é possível fechar o bolão!
+                    </p>
+                    <p className="text-sm text-yellow-700 mt-1">
+                      Existem <span className="font-bold">{contarApostasNaoRegistradas()}</span> aposta(s) que precisam ser marcadas como <span className="font-bold">"Registrado"</span> antes de fechar o bolão.
+                    </p>
+                    <p className="text-xs text-yellow-600 mt-2">
+                      Por favor, verifique todas as apostas abaixo e marque-as como "Registrado" quando confirmar que foram registradas oficialmente.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Seção de Resultado do Sorteio - Só aparece quando bolão está fechado */}
+            {!bolao?.esta_aberto && (
+              <div className="border-t border-gray-200 pt-6 mt-6">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Trophy size={22} />
+                  Lançar Resultado do Sorteio
+                </h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Números Sorteados (formato: 1-2-3-4-5-6)
+                    </label>
+                    <input
+                      type="text"
+                      value={resultado}
+                      onChange={(e) => setResultado(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 text-gray-900 bg-white"
+                      placeholder="1-2-3-4-5-6"
+                      disabled={bolao?.esta_aberto}
+                    />
+                  </div>
+                  <button
+                    onClick={salvarResultado}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={bolao?.esta_aberto}
+                  >
+                    <Save size={18} />
+                    Salvar Resultado
+                  </button>
+                  {bolao?.resultado && (
+                    <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800 font-medium">
+                        Resultado atual: <span className="font-bold">{bolao.resultado}</span>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
-          {showResultado && (
-            <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
-                Lançar Resultado do Sorteio
-              </h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Números Sorteados (formato: 1-2-3-4-5-6)
-                  </label>
-                  <input
-                    type="text"
-                    value={resultado}
-                    onChange={(e) => setResultado(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 text-gray-900 bg-white"
-                    placeholder="1-2-3-4-5-6"
-                  />
-                </div>
-                <button
-                  onClick={salvarResultado}
-                  className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-                >
-                  Salvar Resultado
-                </button>
-              </div>
-            </div>
-          )}
-
           <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
-              Gerenciar Apostas ({apostas.length})
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+                Gerenciar Apostas ({apostas.length})
+              </h2>
+              {bolao?.esta_aberto && !todasApostasRegistradas() && (
+                <div className="text-sm bg-red-50 text-red-700 px-3 py-1 rounded-full font-medium">
+                  {contarApostasNaoRegistradas()} não registrada(s)
+                </div>
+              )}
+            </div>
 
             {apostas.length === 0 ? (
               <p className="text-center text-gray-500 py-8">
@@ -420,7 +516,13 @@ export default function AdminPage() {
                 {apostas.map((aposta) => (
                   <div
                     key={aposta.id}
-                    className="border border-gray-200 rounded-lg p-4"
+                    className={`border rounded-lg p-4 ${
+                      aposta.status === 'registrado'
+                        ? 'border-green-200 bg-green-50'
+                        : aposta.status === 'pago'
+                        ? 'border-blue-200 bg-blue-50'
+                        : 'border-gray-200'
+                    }`}
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -433,11 +535,23 @@ export default function AdminPage() {
                           )
                           .join(' ')}
                         </h3>
-                        <p className="text-xs sm:text-sm text-gray-500">
-                          ID: #{aposta.id} | Status: {aposta.status}
-                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <p className="text-xs sm:text-sm text-gray-500">
+                            ID: #{aposta.id}
+                          </p>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                            aposta.status === 'registrado'
+                              ? 'bg-green-100 text-green-800'
+                              : aposta.status === 'pago'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {aposta.status === 'registrado' ? 'Registrado' : 
+                             aposta.status === 'pago' ? 'Pago' : 'Pendente'}
+                          </span>
+                        </div>
                       </div>
-                      {bolao?.esta_aberto ? (
+                      {podeExcluirAposta(aposta) ? (
                         <button
                           onClick={() => deleteAposta(aposta.id)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -449,7 +563,13 @@ export default function AdminPage() {
                         <button
                           disabled
                           className="p-2 text-gray-400 cursor-not-allowed rounded-lg"
-                          title="Não é possível excluir com bolão fechado"
+                          title={
+                            !bolao?.esta_aberto 
+                              ? "Não é possível excluir com bolão fechado" 
+                              : aposta.aposta_paga 
+                                ? "Não é possível excluir apostas pagas" 
+                                : "Não é possível excluir"
+                          }
                         >
                           <Trash2 size={18} />
                         </button>
@@ -499,7 +619,9 @@ export default function AdminPage() {
                           aposta.aposta_paga
                             ? 'bg-green-100 text-green-800'
                             : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                        }`}
+                        } ${!podeAlterarStatusAposta() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={!podeAlterarStatusAposta()}
+                        title={!podeAlterarStatusAposta() ? "Não é possível alterar status com bolão fechado" : ""}
                       >
                         <DollarSign size={16} />
                         {aposta.aposta_paga ? 'Pago ✓' : 'Marcar como Pago'}
@@ -517,7 +639,9 @@ export default function AdminPage() {
                             aposta.aposta_registrada
                               ? 'bg-blue-100 text-blue-800'
                               : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                          }`}
+                          } ${!podeAlterarStatusAposta() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          disabled={!podeAlterarStatusAposta()}
+                          title={!podeAlterarStatusAposta() ? "Não é possível alterar status com bolão fechado" : ""}
                         >
                           <CheckCircle size={16} />
                           {aposta.aposta_registrada
@@ -526,17 +650,31 @@ export default function AdminPage() {
                         </button>
                       )}
                     </div>
+
+                    {/* Mensagem informativa quando bolão está fechado */}
+                    {!bolao?.esta_aberto && (
+                      <div className="mt-3 p-2 bg-gray-50 border border-gray-200 rounded text-xs text-gray-600">
+                        <span className="font-medium">Status bloqueado:</span> Não é possível alterar status das apostas com o bolão fechado.
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          <footer className="mt-6 text-center text-white text-sm">
-            by @walyssondosreis
+          <footer className="mt-6 text-center text-black text-sm">
+            <a 
+  href="https://inov4dev-app.vercel.app/" 
+  target="_blank" 
+  rel="noopener noreferrer"
+  className="hover:text-yellow-300 transition-colors"
+>
+  Inov4Dev © {new Date().getFullYear()}
+</a>
           </footer>
         </div>
       </div>
-    </> // ← ADICIONE ESTA LINHA - FECHAMENTO DO FRAGMENTO
+    </>
   );
 }
