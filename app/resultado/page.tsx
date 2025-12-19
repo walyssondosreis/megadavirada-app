@@ -147,21 +147,20 @@ export default function ResultadoPage() {
           {/* Header com Resultado */}
           <div className="bg-white rounded-xl shadow-2xl p-6 mb-6 text-center">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <Trophy className="text-yellow-500" size={40} />
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Resultado - {bolao.titulo}
+              <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">
+                Resultado
               </h1>
             </div>
             
             <p className="text-gray-600 mb-4">Concurso {bolao.concurso}</p>
 
-            <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg p-4">
-              <p className="text-sm font-medium text-gray-700 mb-3">Números Sorteados:</p>
-              <div className="flex justify-center flex-wrap gap-3">
+            <div className="rounded-lg p-4 border-1 border-yellow-700 ">
+              <p className="text-sm font-medium text-yellow-700 mb-3">Números sorteados:</p>
+              <div className="flex justify-center flex-wrap gap-1">
                 {resultado.map((num, idx) => (
                   <span
                     key={idx}
-                    className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-yellow-400 to-yellow-600 text-white text-lg font-bold rounded-full shadow-lg"
+                    className="w-10 h-10 flex items-center justify-center text-yellow-800 text-lg font-bold rounded-full shadow-lg border-2 border-yellow-650"
                   >
                     {num.toString().padStart(2, '0')}
                   </span>
@@ -181,8 +180,8 @@ export default function ResultadoPage() {
           {/* Ranking de Apostas */}
           <div className="bg-white rounded-xl shadow-2xl p-4 sm:p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Award className="text-purple-600" size={24} />
-              Ranking de Apostas
+              <Award className="text-yellow-600" size={24} />
+              Ranking de apostas
             </h2>
 
             <div className="mb-4">
@@ -211,17 +210,17 @@ export default function ResultadoPage() {
                       key={aposta.id}
                       className={`border-2 rounded-lg p-4 ${
                         aposta.ganhou
-                          ? 'border-green-500 bg-green-50'
+                          ? 'border-yellow-500 bg-gray-50'
                           : 'border-gray-200 bg-white'
                       }`}
                     >
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
-                            originalIndex === 0 ? 'bg-yellow-400 text-white' :
-                            originalIndex === 1 ? 'bg-gray-400 text-white' :
-                            originalIndex === 2 ? 'bg-orange-600 text-white' :
-                            'bg-gray-200 text-gray-700'
+                          <div className={`w-10 h-10 rounded-md flex items-center justify-center font-bold ${
+                            originalIndex === 0 ? 'bg-yellow-100 text-yellow-600 border border-yellow-600' :
+                            originalIndex === 1 ? 'bg-orange-100 text-orange-600 border border-orange-600' :
+                            originalIndex === 2 ? 'bg-gray-100 text-gray-600 border border-gray-600' :
+                            'bg-white text-gray-700 border border-gray-400'
                           }`}>
                             {originalIndex + 1}º
                           </div>

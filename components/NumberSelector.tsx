@@ -64,7 +64,7 @@ export default function NumberSelector({
         <button
           type="button"
           onClick={randomSelect}
-          className="flex items-center gap-2 px-3 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-xs bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
         >
           <Shuffle size={16} />
           Aleatório
@@ -72,7 +72,7 @@ export default function NumberSelector({
         <button
           type="button"
           onClick={clearAll}
-          className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-xs bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
         >
           <X size={16} />
           Limpar

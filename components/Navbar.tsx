@@ -39,10 +39,10 @@ export default function Navbar() {
   };
 
   return (
-    <header className="bg-gradient-to-r from-green-900 to-emerald-900 shadow-lg">
+    <header className="bg-white">
       <div className="max-w-full mx-auto">
         {/* Parte superior: Logo e título lado a lado */}
-        <div className="flex items-center justify-between px-4 py-3 sm:py-4 bg-gradient-to-b from-green-800/50 to-green-900/30">
+        <div className="flex items-center justify-between px-4 py-3 sm:py-4 bg-gradient-to-b from-gray-200/50 to-green-100/30 text-black">
           {/* Logo + Título lado a lado */}
           <button
             onClick={() => router.push('/')}
@@ -57,10 +57,10 @@ export default function Navbar() {
             </div>
             
             <div className="text-left">
-              <h1 className="text-lg sm:text-xl font-bold text-white leading-tight">
+              <h1 className="text-lg sm:text-xl font-bold leading-tight">
                 {bolao?.titulo || '...Carregando'}
               </h1>
-              <p className="text-xs text-green-100 mt-0.5 line-clamp-1">
+              <p className="text-xs mt-0.5 line-clamp-1">
                 {bolao?.subtitulo || '...Carregando'}
               </p>
             </div>
@@ -68,10 +68,10 @@ export default function Navbar() {
 
           {/* Status do bolão - Compacto para mobile - COM ANIMAÇÃO SUAVE */}
           <div 
-            className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg hover:scale-105 hover:bg-white/20 transition-all duration-300"
-            style={{
-              animation: 'gentleShake 4s ease-in-out infinite'
-            }}
+            className="flex items-center gap-2 px-3 py-1.5 border-2 border-gray-400 rounded-lg transition-all duration-300"
+            // style={{
+            //   animation: 'gentleShake 1s ease-in-out infinite'
+            // }}
           >
             <div className={`w-3 h-3 rounded-full ${bolao?.esta_aberto ? 'bg-green-400' : 'bg-red-400'}`}></div>
             <span className="text-xs sm:text-sm font-bold text-green-950 whitespace-nowrap">

@@ -152,7 +152,7 @@ export default function HomePage() {
           {!bolao?.esta_aberto && (
             <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-center">
               <p className="text-red-800 font-semibold">
-                Bolão fechado para novas apostas
+                Bolão fechado para novas apostas. <br /> O sorteio será no dia 31/12/2025 às 20:30
               </p>
             </div>
           )}

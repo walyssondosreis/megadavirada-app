@@ -206,7 +206,7 @@ export default function NovaApostaPage() {
 
           <div className="bg-white rounded-xl shadow-2xl p-4 sm:p-6">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 text-center">
-              Nova Aposta - {bolao?.titulo}
+              Registrar Aposta
             </h1>
 
             {errorMessage && (
@@ -233,7 +233,7 @@ export default function NovaApostaPage() {
                 />
               </div>
 
-              <div className="border-t pt-4">
+              <div className="border-t pt-4 bg-gray-200 p-3 border border-gray-400 rounded-lg">
                 <NumberSelector
                   selectedNumbers={jogo1}
                   onNumbersChange={(nums) => {
@@ -244,7 +244,7 @@ export default function NovaApostaPage() {
                 />
               </div>
 
-              <div className="border-t pt-4">
+              <div className="border-t pt-4 bg-gray-200 p-3 border border-gray-400 rounded-lg">
                 <NumberSelector
                   selectedNumbers={jogo2}
                   onNumbersChange={(nums) => {
