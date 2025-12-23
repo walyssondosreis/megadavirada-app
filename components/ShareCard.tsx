@@ -453,7 +453,7 @@ export default function ShareCard({
         } catch (shareError) {
           console.log('Native share failed, falling back to WhatsApp Web:', shareError);
           // Ignorar erros específicos de extensões
-          if (!shareError.message?.includes('port closed')) {
+          if (!(shareError instanceof Error && shareError.message?.includes('port closed'))) {
             compartilharViaWhatsAppWeb(shareText, imageUrl);
             setIsSuccess(true);
           }
