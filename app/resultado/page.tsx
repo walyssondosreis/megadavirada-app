@@ -284,9 +284,9 @@ export default function ResultadoPage() {
                           jogo1={aposta.jogo_1}
                           jogo2={aposta.jogo_2}
                           mensagem={aposta.mensagem || undefined}
-                          resultado={bolao.resultado}
+                          resultado={bolao?.resultado || undefined}
                           posicao={originalIndex + 1}
-                          concurso={bolao.concurso.toString()}
+                          concurso={bolao?.concurso?.toString() || '0'}
                           estaAberto={false}
                         />
                       </div>
