@@ -6,6 +6,7 @@ import { supabase, Bolao, Aposta } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import { Plus, Users, Search } from 'lucide-react';
 import { format } from 'date-fns';
+import Banner from '@/components/Banner';
 
 export default function HomePage() {
   const [bolao, setBolao] = useState<Bolao | null>(null);
@@ -98,6 +99,10 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-200 to-gray-200">
       <Navbar />
+      <Banner
+        // imageUrl='https://louveira.com.br/wp-content/uploads/sites/14/2025/12/mega-da-virada-2025-r-1-bilhao-em-jogo-como-apostar-no-maior-premio-da-historia-v6947e6386b4b2.jpg'
+
+      />
 
       <main className="max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6">
