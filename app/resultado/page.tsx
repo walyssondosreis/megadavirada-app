@@ -283,7 +283,7 @@ export default function ResultadoPage() {
                           nomeApostador={aposta.nome_apostador}
                           jogo1={aposta.jogo_1}
                           jogo2={aposta.jogo_2}
-                          mensagem={aposta.mensagem}
+                          mensagem={aposta.mensagem || undefined}
                           resultado={bolao.resultado}
                           posicao={originalIndex + 1}
                           concurso={bolao.concurso.toString()}
