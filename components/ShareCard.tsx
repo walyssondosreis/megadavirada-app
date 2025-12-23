@@ -139,6 +139,14 @@ export default function ShareCard({
       altura += 25; // Espaço após números (sem resultado)
     }
     
+    // RESULTADO DO SORTEIO (se houver) - ADICIONADO
+    if (resultado) {
+      altura += 15; // Espaço antes do resultado
+      altura += 20; // Título "Resultado:"
+      altura += 28; // Bolinhas do resultado (tamanho 26 + espaçamento)
+      altura += 15; // Espaço após resultado
+    }
+    
     // Mensagem (se houver)
     if (mensagem) {
       altura += 10; // Espaço antes da mensagem
@@ -153,7 +161,7 @@ export default function ShareCard({
     // Margem de segurança e borda
     altura += 30;
     
-    return Math.max(altura, 500); // Altura mínima de 500px
+    return Math.max(altura, 550); // Altura mínima aumentada para 550px
   };
 
   // Função para gerar imagem usando Canvas API
@@ -347,7 +355,7 @@ export default function ShareCard({
         ctx.fillText(`${totalAcertos} acerto${totalAcertos !== 1 ? 's' : ''} no melhor jogo`, 20, currentY + 25);
         currentY += 40;
       } else {
-        ctx.fillText('Nova Aposta Registrada', 20, currentY + 25); 
+        ctx.fillText('Nova aposta registrada', 20, currentY + 25);
         currentY += 40;
       }
       
@@ -516,7 +524,61 @@ export default function ShareCard({
         currentY += (Math.ceil(numerosJogo2.length / numsPerRow) * (numSize + numSpacing)) + 25;
       }
       
-      // Mensagem (se houver) - estilo moderno
+      // RESULTADO DO SORTEIO (apenas se houver resultado) - ADICIONADO
+      if (resultado) {
+        // Espaço antes do resultado
+        currentY += 15;
+        
+        // Título do resultado - discreto
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '600 12px -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText('Resultado do sorteio:', 20, currentY);
+        
+        currentY += 20;
+        
+        // Configuração das bolinhas do resultado (menores e discretas)
+        const resultNumSize = 26; // Menor que as bolas dos jogos
+        const resultNumSpacing = 4;
+        const resultNumsPerRow = 6;
+        const resultRowWidth = (resultNumsPerRow * resultNumSize) + ((resultNumsPerRow - 1) * resultNumSpacing);
+        const resultStartX = (width - resultRowWidth) / 2;
+        
+        // Desenhar as bolinhas do resultado
+        for (let i = 0; i < resultadoNumeros.length; i++) {
+          const row = Math.floor(i / resultNumsPerRow);
+          const col = i % resultNumsPerRow;
+          const x = resultStartX + col * (resultNumSize + resultNumSpacing);
+          const y = currentY + row * (resultNumSize + resultNumSpacing);
+          
+          // Bolinha branca com borda cinza clara
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(x + resultNumSize/2, y + resultNumSize/2, resultNumSize/2, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Borda cinza clara
+          ctx.strokeStyle = '#949ba6ff';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(x + resultNumSize/2, y + resultNumSize/2, resultNumSize/2, 0, Math.PI * 2);
+          ctx.stroke();
+          
+          // Número preto dentro da bolinha
+          ctx.fillStyle = '#949ba6ff'; // Preto/cinza muito escuro
+          ctx.font = 'bold 10px -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(resultadoNumeros[i].toString().padStart(2, '0'), x + resultNumSize/2, y + resultNumSize/2);
+        }
+        
+        // Atualizar posição Y considerando as linhas do resultado
+        const resultRows = Math.ceil(resultadoNumeros.length / resultNumsPerRow);
+        currentY += (resultRows * (resultNumSize + resultNumSpacing)) + 15;
+      }
+      
+      // Mensagem (se houver) - estilo moderno - AGORA VEM DEPOIS DO RESULTADO
       if (mensagem) {
         const maxMsgHeight = 40;
         const msgContainerTop = currentY + 10;
