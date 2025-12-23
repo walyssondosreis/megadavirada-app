@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase, Bolao, Aposta } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
+import ShareCard from '@/components/ShareCard'; // Importe o componente
 import { Trophy, Award, Frown, ArrowLeft, Search } from 'lucide-react';
 
 interface ApostaComAcertos extends Aposta {
@@ -56,7 +57,6 @@ export default function ResultadoPage() {
         if (apostasData) {
           // Ordenar os números do resultado
           const resultado = bolaoData.resultado.split('-').map(Number).sort((a: number, b: number) => a - b);
-          // const resultado = bolaoData.resultado.split('-').map(Number).sort((a, b) => a - b);
           
           const apostasProcessadas = apostasData.map((aposta) => {
             const jogo1 = aposta.jogo_1.split(',').map(Number);
@@ -154,7 +154,7 @@ export default function ResultadoPage() {
             
             <p className="text-gray-600 mb-4">Concurso {bolao.concurso}</p>
 
-            <div className="rounded-lg p-4 border-1 border-yellow-700 ">
+            <div className="rounded-lg p-4 border-1 border-yellow-700">
               <p className="text-sm font-medium text-yellow-700 mb-3">Números sorteados:</p>
               <div className="flex justify-center flex-wrap gap-1">
                 {resultado.map((num, idx) => (
@@ -276,6 +276,20 @@ export default function ResultadoPage() {
                           </p>
                         </div>
                       )}
+
+                      {/* Botão de Compartilhar usando o componente ShareCard */}
+                      <div className="mt-4 pt-4 border-t border-gray-200 flex justify-end">
+                        <ShareCard
+                          nomeApostador={aposta.nome_apostador}
+                          jogo1={aposta.jogo_1}
+                          jogo2={aposta.jogo_2}
+                          mensagem={aposta.mensagem}
+                          resultado={bolao.resultado}
+                          posicao={originalIndex + 1}
+                          concurso={bolao.concurso.toString()}
+                          estaAberto={false}
+                        />
+                      </div>
                     </div>
                   );
                 })}
@@ -285,13 +299,13 @@ export default function ResultadoPage() {
 
           <footer className="mt-6 text-center text-black text-sm">
             <a 
-  href="https://inov4dev-app.vercel.app/" 
-  target="_blank" 
-  rel="noopener noreferrer"
-  className="hover:text-yellow-300 transition-colors"
->
-  Inov4Dev © {new Date().getFullYear()}
-</a>
+              href="https://inov4dev-app.vercel.app/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-yellow-300 transition-colors"
+            >
+              Inov4Dev © {new Date().getFullYear()}
+            </a>
           </footer>
         </div>
       </div>

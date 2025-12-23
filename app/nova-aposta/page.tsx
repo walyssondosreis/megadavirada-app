@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { supabase, Bolao } from '@/lib/supabase';
 import NumberSelector from '@/components/NumberSelector';
 import Navbar from '@/components/Navbar';
-import { ArrowLeft, Check, Share2, Copy } from 'lucide-react';
+import ShareCard from '@/components/ShareCard'; // Adicione esta importação
+import { ArrowLeft, Check, Copy } from 'lucide-react';
 
 export default function NovaApostaPage() {
   const [bolao, setBolao] = useState<Bolao | null>(null);
@@ -103,21 +104,6 @@ export default function NovaApostaPage() {
     }
   };
 
-  const shareWhatsApp = () => {
-    const jogo1Text = jogo1.map(n => n.toString().padStart(2, '0')).join(' - ');
-    const jogo2Text = jogo2.map(n => n.toString().padStart(2, '0')).join(' - ');
-    
-    const message = `*${bolao?.titulo || 'Bolão'}*\n\n` +
-      `*Nome:* ${nomeApostador}\n` +
-      `*Jogo 1:* ${jogo1Text}\n` +
-      `*Jogo 2:* ${jogo2Text}\n` +
-      `${mensagem ? `\n *Mensagem:* _${mensagem}_` : ''}` +
-      `\n(ㆆ_ㆆ)`;
-
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-  };
-
   if (showSuccess) {
     return (
       <>
@@ -157,14 +143,22 @@ export default function NovaApostaPage() {
             )}
 
             <div className="space-y-3">
-              <button
-                type="button"
-                onClick={shareWhatsApp}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold"
-              >
-                <Share2 size={20} />
-                Compartilhar no WhatsApp
-              </button>
+              {/* Use o componente ShareCard aqui */}
+              <div className="flex justify-center">
+                <ShareCard
+                  nomeApostador={nomeApostador}
+                  jogo1={jogo1.join(',')}
+                  jogo2={jogo2.join(',')}
+                  mensagem={mensagem}
+                  concurso={bolao?.concurso?.toString() || '1'}
+                  estaAberto={true}
+                  onShare={(imageUrl) => {
+                    // Callback opcional após compartilhar
+                    console.log('Imagem compartilhada:', imageUrl);
+                  }}
+                />
+              </div>
+              
               <button
                 type="button"
                 onClick={() => router.push('/')}
@@ -176,13 +170,13 @@ export default function NovaApostaPage() {
 
             <footer className="mt-8 text-black text-sm">
               <a 
-  href="https://inov4dev-app.vercel.app/" 
-  target="_blank" 
-  rel="noopener noreferrer"
-  className="hover:text-yellow-300 transition-colors"
->
-  Inov4Dev © {new Date().getFullYear()}
-</a>
+                href="https://inov4dev-app.vercel.app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-yellow-300 transition-colors"
+              >
+                Inov4Dev © {new Date().getFullYear()}
+              </a>
             </footer>
           </div>
         </div>
@@ -288,13 +282,13 @@ export default function NovaApostaPage() {
 
           <footer className="mt-6 text-center text-black text-sm">
             <a 
-  href="https://inov4dev-app.vercel.app/" 
-  target="_blank" 
-  rel="noopener noreferrer"
-  className="hover:text-yellow-300 transition-colors"
->
-  Inov4Dev © {new Date().getFullYear()}
-</a>
+              href="https://inov4dev-app.vercel.app/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-yellow-300 transition-colors"
+            >
+              Inov4Dev © {new Date().getFullYear()}
+            </a>
           </footer>
         </div>
       </div>
