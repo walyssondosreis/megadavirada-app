@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase, Bolao, Aposta } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
-import { Plus, Users, Search } from 'lucide-react';
+import { Plus, Users, Search, SquareArrowOutUpRight } from 'lucide-react';
 import { format } from 'date-fns';
 import Banner from '@/components/Banner';
 
@@ -157,7 +157,8 @@ export default function HomePage() {
           {!bolao?.esta_aberto && (
             <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-center">
               <p className="text-red-800 font-semibold">
-                Bolão fechado para novas apostas. <br /> O sorteio será no dia 31/12/2025 às 20:30
+                Bolão fechado para novas apostas. <br /> O sorteio será no dia 31/12/2025 às 22:00 no canal oficial da caixa no youtube. 
+                <a className='flex justify-center py-2 text-blue-600 gap-1 items-center ' href='https://www.youtube.com/@canalcaixa' target='blank' > <SquareArrowOutUpRight size={18} />Ir para canal</a>
               </p>
             </div>
           )}
